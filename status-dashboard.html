@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw 状态面板</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-size: 2em;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .card h2 {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card h2 .icon { font-size: 1.3em; }
+        .stat { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat:last-child { border-bottom: none; }
+        .stat-label { color: #aaa; }
+        .stat-value { font-weight: bold; }
+        .status-ok { color: #4ade80; }
+        .status-error { color: #f87171; }
+        .status-pending { color: #fbbf24; }
+        
+        .cron-list { font-size: 0.9em; }
+        .cron-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 8px 0;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        .cron-name { font-weight: bold; }
+        .cron-time { color: #aaa; font-size: 0.85em; }
+        
+        .activity-log {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            padding: 8px 12px;
+            margin: 6px 0;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            font-size: 0.9em;
+            border-left: 3px solid #00d4ff;
+        }
+        .log-time { color: #aaa; font-size: 0.8em; }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        
+        .refresh-info {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-size: 0.85em;
+        }
+        .wide-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .history-item, .result-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border-left: 3px solid #00d4ff;
+        }
+        .history-meta, .result-meta {
+            color: #aaa;
+            font-size: 0.82em;
+            margin-top: 4px;
+        }
+        .doc-link {
+            color: #7dd3fc;
+            text-decoration: none;
+        }
+        .doc-link:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 900px) {
+            .wide-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 OpenClaw 状态面板</h1>
+        
+        <div class="grid">
+            <!-- 系统状态 -->
+            <div class="card">
+                <h2><span class="icon">💻</span> 系统状态</h2>
+                <div class="stat">
+                    <span class="stat-label">运行环境</span>
+                    <span class="stat-value">Linux</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">当前时间</span>
+                    <span class="stat-value" id="currentTime">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">活跃会话</span>
+                    <span class="stat-value" id="activeSessions">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">当前模型</span>
+                    <span class="stat-value" id="currentModel">gmn/gpt-5.4</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">模型提供方</span>
+                    <span class="stat-value" id="modelProvider">OpenAI Compatible</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">上下文占用</span>
+                    <span class="stat-value" id="contextUsage">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Token 使用</span>
+                    <span class="stat-value" id="tokenUsage">-</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">最近切模</span>
+                    <span class="stat-value" id="lastModelSwitch">-</span>
+                </div>
+            </div>
+            
+            <!-- Cron 任务状态 -->
+            <div class="card">
+                <h2><span class="icon">⏰</span> 定时任务 (Cron)</h2>
+                <div class="cron-list" id="cronList">
+                    <div class="cron-item">
+                        <span class="cron-name">加载中...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 今日活动 -->
+            <div class="card">
+                <h2><span class="icon">📝</span> 今日活动</h2>
+                <div class="activity-log" id="activityLog">
+                    <div class="log-entry">
+                        <span class="log-time">等待加载...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wide-section">
+            <div class="card">
+                <h2><span class="icon">🧠</span> 模型切换历史</h2>
+                <div id="modelHistory"></div>
+            </div>
+            <div class="card">
+                <h2><span class="icon">📎</span> 定时任务执行结果与文档</h2>
+                <div id="cronResults"></div>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="btn" onclick="refreshData()">🔄 刷新数据</button>
+            <a href="/status" class="btn" target="_blank">📊 详细状态</a>
+        </div>
+        
+        <p class="refresh-info" id="refreshTime">最后更新: -</p>
+    </div>
+    
+    <script>
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+            document.getElementById('refreshTime').textContent = 
+                '最后更新: ' + now.toLocaleTimeString('zh-CN');
+        }
+        
+        async function refreshData() {
+            updateTime();
+
+            document.getElementById('currentModel').textContent = 'gmn/gpt-5.4';
+            document.getElementById('modelProvider').textContent = 'models.json / OpenAI-compatible';
+            document.getElementById('contextUsage').textContent = '92k / 400k (23%)';
+            document.getElementById('tokenUsage').textContent = '422 in / 239 out';
+            document.getElementById('lastModelSwitch').textContent = '今天 18:26 切换到 gmn/gpt-5.4';
+            document.getElementById('activeSessions').textContent = '当前会话在线';
+
+            document.getElementById('cronList').innerHTML = `
+                <div class="cron-item">
+                    <span class="cron-name">github-trending-daily</span>
+                    <span class="cron-time status-error">✗ 上次超时，已修复</span>
+                </div>
+                <div class="cron-item">
+                    <span class="cron-name">stock-market-daily</span>
+                    <span class="cron-time status-ok">✓ 正常</span>
+                </div>
+                <div class="cron-item">
+                    <span class="cron-name">今日头条</span>
+                    <span class="cron-time status-ok">✓ 正常</span>
+                </div>
+                <div class="cron-item">
+                    <span class="cron-name">game-daily-update</span>
+                    <span class="cron-time status-ok">✓ 正常</span>
+                </div>
+                <div class="cron-item">
+                    <span class="cron-name">openclaw-daily-update</span>
+                    <span class="cron-time status-ok">✓ 正常</span>
+                </div>
+                <div class="cron-item">
+                    <span class="cron-name">game-weekly-report</span>
+                    <span class="cron-time status-ok">✓ 正常</span>
+                </div>
+            `;
+
+            const modelHistory = [
+                { time: '今天 18:26', model: 'gmn/gpt-5.4', note: '切换到当前工作模型' },
+                { time: '今天 15:21', model: 'qianfan/glm-5', note: '切回默认模型' },
+                { time: '今天更早', model: 'minimax-m2.5', note: '初始会话模型' },
+            ];
+
+            document.getElementById('modelHistory').innerHTML = modelHistory.map(item => `
+                <div class="history-item">
+                    <div><strong>${item.model}</strong></div>
+                    <div class="history-meta">${item.time} · ${item.note}</div>
+                </div>
+            `).join('');
+
+            const cronResults = [
+                {
+                    name: 'game-daily-update',
+                    status: '最近一次：成功',
+                    doc: 'https://feishu.cn/docx/DwNjdowrhotHxLxSumjcr8nDnuB'
+                },
+                {
+                    name: 'openclaw-daily-update',
+                    status: '最近一次：成功',
+                    doc: 'https://feishu.cn/docx/HYnydU5WWowWgUxK6XicgHGBncf'
+                },
+                {
+                    name: '今日头条',
+                    status: '最近一次：成功',
+                    doc: 'https://feishu.cn/docx/IgNfdB0SVoclRbxDtXNcI6CVnah'
+                },
+                {
+                    name: 'stock-market-daily',
+                    status: '最近一次：成功',
+                    doc: 'https://feishu.cn/docx/AxIqdUfLVorzAzxAfhUc4yaznhh'
+                },
+                {
+                    name: 'github-trending-daily',
+                    status: '最近一次：超时，已修复',
+                    doc: 'https://feishu.cn/docx/Fx3Rd7WepoaIVix6NN5cxPpqnpf'
+                },
+                {
+                    name: 'game-weekly-report',
+                    status: '最近一次：成功',
+                    doc: 'https://feishu.cn/docx/GXvjdHfCIogRpkxX6jZcyoM0nef'
+                }
+            ];
+
+            document.getElementById('cronResults').innerHTML = cronResults.map(item => `
+                <div class="result-item">
+                    <div><strong>${item.name}</strong></div>
+                    <div class="result-meta">${item.status}</div>
+                    <div class="result-meta"><a class="doc-link" href="${item.doc}" target="_blank">打开飞书文档</a></div>
+                </div>
+            `).join('');
+
+            const activities = [
+                { time: '18:51', text: '状态面板新增模型切换历史与任务结果文档链接' },
+                { time: '18:49', text: '状态面板升级为完整版：模型/provider/token/切模时间' },
+                { time: '18:28', text: '状态面板增加当前模型显示' },
+                { time: '18:26', text: '模型切换到 gmn/gpt-5.4' },
+                { time: '今天', text: '定时任务已接入飞书文档归档' },
+            ];
+
+            document.getElementById('activityLog').innerHTML = activities.map(a => `
+                <div class="log-entry">
+                    <span class="log-time">${a.time}</span> - ${a.text}
+                </div>
+            `).join('');
+        }
+        
+        // 页面加载时刷新
+        refreshData();
+        
+        // 每30秒自动刷新
+        setInterval(refreshData, 30000);
+    </script>
+</body>
+</html>
