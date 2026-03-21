@@ -17,11 +17,29 @@ if [ ! -f "$LOG_FILE" ]; then
 
 ## What Changed
 - Pending update.
+
+## Skill Installs
+- None
+
+## Cron Changes
+- None
+
+## Doc Archive Updates
+- None
+
+## Model Switches
+- None
+
+## Lessons
+- None
+
+## Next Steps
+- Pending update.
 EOF
 fi
 
 if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-  git add CHANGELOG.md growth-log scripts status-dashboard.html dashboard-server.py 2>/dev/null || true
+  git add CHANGELOG.md growth-log docs/growth-log-rules.md scripts status-dashboard.html dashboard-server.py 2>/dev/null || true
   git add . 2>/dev/null || true
   if ! git diff --cached --quiet; then
     git commit -m "Daily sync: ${TODAY}" || true

@@ -29,3 +29,4 @@ All notable changes in this workspace are tracked here.
 ### Infra
 - Configured Git identity for commits.
 - Connected local workspace to GitHub repo `openclawOperate` and pushed `main`.
+- Added a growth log template and daily logging rules.
