@@ -16,6 +16,7 @@ Every daily log should include these sections in order:
 ## Event Recording Rules
 Record these events whenever they happen.
 Use `scripts/growth-log-event.sh` to append them immediately instead of waiting for a manual summary.
+For common operations, prefer the logged wrappers so the action and the log entry happen together.
 
 Example:
 ```bash
@@ -24,6 +25,13 @@ scripts/growth-log-event.sh cron "Updated github-trending-daily timeout from 180
 scripts/growth-log-event.sh doc "Backfilled stock-market-daily report into Feishu archive doc"
 scripts/growth-log-event.sh model "Switched qianfan/glm-5 -> gmn/gpt-5.4 for current work session"
 ```
+
+## Logged Operation Wrappers
+- `scripts/logged-skill-install.sh <owner/repo@skill> [reason]`
+- `scripts/logged-cron-edit.sh <job-id> <openclaw cron edit args...>`
+- `scripts/logged-model-switch.sh <model> [reason]`
+
+These wrappers are the preferred path for recurring operational changes because they perform the action and append the event to the current growth log in one step.
 
 ### Skill Installs
 Write down:

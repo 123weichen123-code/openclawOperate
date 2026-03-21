@@ -31,3 +31,4 @@ All notable changes in this workspace are tracked here.
 - Connected local workspace to GitHub repo `openclawOperate` and pushed `main`.
 - Added a growth log template and daily logging rules.
 - Added `scripts/growth-log-event.sh` for immediate event appends to daily growth logs.
+- Added logged operation wrappers for skill installs, cron edits, and model switches.
