@@ -66,6 +66,38 @@ def get_crons():
         return []
 
 
+def get_recent_growth_events(limit=8):
+    today = datetime.now().strftime('%Y-%m-%d')
+    path = ROOT / 'growth-log' / f'{today}.md'
+    if not path.exists():
+        return []
+
+    events = []
+    current_section = None
+    interesting = {
+        '## Skill Installs': 'skill',
+        '## Cron Changes': 'cron',
+        '## Doc Archive Updates': 'doc',
+        '## Model Switches': 'model',
+    }
+
+    for raw_line in path.read_text(encoding='utf-8').splitlines():
+        line = raw_line.strip()
+        if line in interesting:
+            current_section = line
+            continue
+        if line.startswith('## '):
+            current_section = None
+            continue
+        if current_section and line.startswith('- ') and line != '- None':
+            events.append({
+                'type': interesting[current_section],
+                'text': line[2:].strip(),
+            })
+
+    return events[-limit:][::-1]
+
+
 class Handler(BaseHTTPRequestHandler):
     def _send_json(self, payload, status=200):
         body = json.dumps(payload, ensure_ascii=False).encode('utf-8')
@@ -93,6 +125,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json({
                 'modelStatus': get_model_status(),
                 'crons': get_crons(),
+                'recentEvents': get_recent_growth_events(),
             })
             return
         self._send_json({'error': 'not found'}, status=404)

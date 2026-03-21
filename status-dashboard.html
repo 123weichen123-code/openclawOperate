@@ -319,19 +319,28 @@
                 </div>
             `).join('');
 
-            const activities = [
-                { time: '18:51', text: '状态面板新增模型切换历史与任务结果文档链接' },
-                { time: '18:49', text: '状态面板升级为完整版：模型/provider/token/切模时间' },
-                { time: '18:28', text: '状态面板增加当前模型显示' },
-                { time: '18:26', text: '模型切换到 gmn/gpt-5.4' },
-                { time: '今天', text: '定时任务已接入飞书文档归档' },
-            ];
-
-            document.getElementById('activityLog').innerHTML = activities.map(a => `
-                <div class="log-entry">
-                    <span class="log-time">${a.time}</span> - ${a.text}
-                </div>
-            `).join('');
+            fetch('/api/status', { cache: 'no-store' })
+                .then(resp => resp.json())
+                .then(data => {
+                    const events = data.recentEvents || [];
+                    if (!events.length) {
+                        document.getElementById('activityLog').innerHTML = `
+                            <div class="log-entry"><span class="log-time">今天</span> - 暂无最近动作</div>
+                        `;
+                        return;
+                    }
+                    const typeMap = { skill: '技能', cron: '定时任务', doc: '文档', model: '模型' };
+                    document.getElementById('activityLog').innerHTML = events.map(e => `
+                        <div class="log-entry">
+                            <span class="log-time">${typeMap[e.type] || '事件'}</span> - ${e.text}
+                        </div>
+                    `).join('');
+                })
+                .catch(() => {
+                    document.getElementById('activityLog').innerHTML = `
+                        <div class="log-entry"><span class="log-time">系统</span> - 最近动作读取失败</div>
+                    `;
+                });
         }
         
         // 页面加载时刷新

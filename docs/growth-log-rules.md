@@ -29,6 +29,7 @@ scripts/growth-log-event.sh model "Switched qianfan/glm-5 -> gmn/gpt-5.4 for cur
 ## Logged Operation Wrappers
 - `scripts/logged-skill-install.sh <owner/repo@skill> [reason]`
 - `scripts/logged-cron-edit.sh <job-id> <openclaw cron edit args...>`
+- `scripts/logged-cron-add.sh <openclaw cron add args...>`
 - `scripts/logged-model-switch.sh <model> [reason]`
 
 These wrappers are the preferred path for recurring operational changes because they perform the action and append the event to the current growth log in one step.
