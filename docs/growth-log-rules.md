@@ -14,7 +14,16 @@ Every daily log should include these sections in order:
 - Next Steps
 
 ## Event Recording Rules
-Record these events whenever they happen:
+Record these events whenever they happen.
+Use `scripts/growth-log-event.sh` to append them immediately instead of waiting for a manual summary.
+
+Example:
+```bash
+scripts/growth-log-event.sh skill "Installed browser-automation for page interaction fallback"
+scripts/growth-log-event.sh cron "Updated github-trending-daily timeout from 180s to 300s"
+scripts/growth-log-event.sh doc "Backfilled stock-market-daily report into Feishu archive doc"
+scripts/growth-log-event.sh model "Switched qianfan/glm-5 -> gmn/gpt-5.4 for current work session"
+```
 
 ### Skill Installs
 Write down:

@@ -30,3 +30,4 @@ All notable changes in this workspace are tracked here.
 - Configured Git identity for commits.
 - Connected local workspace to GitHub repo `openclawOperate` and pushed `main`.
 - Added a growth log template and daily logging rules.
+- Added `scripts/growth-log-event.sh` for immediate event appends to daily growth logs.
