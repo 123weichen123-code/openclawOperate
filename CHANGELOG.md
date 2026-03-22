@@ -2,6 +2,15 @@
 
 All notable changes in this workspace are tracked here.
 
+## 2026-03-22
+
+### Added
+- Added `growth-log/2026-03-22.md` to keep the daily operations log continuous.
+
+### Changed
+- Clarified and recorded the repository boundary rule: workspace-root operations changes stay in `openclawOperate.git`, while `historyboard/` remains isolated in its own repository.
+- Completed the daily GitHub sync preparation for the workspace root without mixing in `historyboard/` changes.
+
 ## 2026-03-21
 
 ### Added
