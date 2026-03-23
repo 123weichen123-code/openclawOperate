@@ -1,42 +1,19 @@
-# 2026年03月 OpenClaw 文档与自动化月度汇报
+# 2026年03月 OpenClaw 文档与自动化月度汇报（管理版）
 
-- 月报文档：https://feishu.cn/docx/DfN3dQvZ1oPG9cxJ90nc8YuenMh
+- 管理版月报文档：https://feishu.cn/docx/DfN3dQvZ1oPG9cxJ90nc8YuenMh
+- 任务运行月度健康报表：https://feishu.cn/docx/NLfzd6IlioRwJuxPq51clRjdnxb
 - 结构化台账：https://my.feishu.cn/base/YoumbivNyadRFTsfY97chW81nqh
 
-## 指标概览
+## 已完成事项
 
-- 核心文档资产：8
-- 已启用自动化任务：9
-- 自动沉淀到飞书的文档链路：8
-- 今日新增能力：1 份 F1 年度总览、1 个 F1 周提醒、2 个新技能
+- 已将 9 项核心文档/提醒资产写入 Bitable 结构化台账
+- 已将月报升级为管理版，强化执行摘要、管理结论、下月优先动作
+- 已新增任务运行月度健康报表，补齐自动化健康视角
+- 已生成 4 张可视化图：主题分布、频率分布、任务健康、内容覆盖
 
-## 文档分类
+## 管理结论
 
-- 投资/市场：1
-- 技术/技能：3
-- 游戏：3
-- F1：1
-
-## 频率分类
-
-- 日报：6
-- 周报：1
-- 周提醒：1
-- 专题总览：1
-
-## 主要文档
-
-- 股票市场日报：https://feishu.cn/docx/AxIqdUfLVorzAzxAfhUc4yaznhh
-- GitHub Trending：https://feishu.cn/docx/Fx3Rd7WepoaIVix6NN5cxPpqnpf
-- OpenClaw 更新：https://feishu.cn/docx/HYnydU5WWowWgUxK6XicgHGBncf
-- Skill 候选日报：https://feishu.cn/docx/N04qdT8tdoVWWmxoyVYcKUgbnkd
-- 每日游戏更新：https://feishu.cn/docx/DwNjdowrhotHxLxSumjcr8nDnuB
-- 今日头条：https://feishu.cn/docx/IgNfdB0SVoclRbxDtXNcI6CVnah
-- 游戏周报：https://feishu.cn/docx/GXvjdHfCIogRpkxX6jZcyoM0nef
-- 2026 F1 全年赛道安排与赛道特性总览：https://feishu.cn/docx/ET2wdFJjZo1jQGx2kKJcQ1xEnGd
-
-## 结论
-
-- 当前最成熟的内容带是技术/技能与游戏。
-- F1 已具备“年度总览 + 每周前瞻”的持续经营条件。
-- 下一步最值得做的是把文档索引、任务状态、失败原因统一沉淀进 Bitable。
+- 当前最成熟内容线：技术/技能、游戏
+- 最具持续经营潜力：F1
+- 当前主要短板：健康指标字段仍不够细，Bitable 仍有空白占位记录待清理
+- 下阶段重点：把现有内容资产升级成可运营、可追踪、可决策的数据资产
