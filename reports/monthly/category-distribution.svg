@@ -1,0 +1,23 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='900' height='420' viewBox='0 0 900 420'>
+<style>text{font-family:Arial,sans-serif;fill:#1f2937} .title{font-size:28px;font-weight:700} .label{font-size:20px} .value{font-size:18px;font-weight:700} .axis{stroke:#d1d5db;stroke-width:1}</style>
+<rect width='100%' height='100%' fill='#f8fafc' rx='18'/>
+<text x='140' y='40' class='title'>2026-03 已生成文档主题分布</text>
+<line x1='380.0' y1='60' x2='380.0' y2='360' class='axis' stroke-dasharray='4 6'/>
+<text x='375.0' y='385' class='label'>1</text>
+<line x1='620.0' y1='60' x2='620.0' y2='360' class='axis' stroke-dasharray='4 6'/>
+<text x='615.0' y='385' class='label'>2</text>
+<line x1='860.0' y1='60' x2='860.0' y2='360' class='axis' stroke-dasharray='4 6'/>
+<text x='855.0' y='385' class='label'>3</text>
+<text x='20' y='105.75' class='label'>游戏</text>
+<rect x='140' y='70' width='720.0' height='55.0' rx='10' fill='#1d4ed8' opacity='0.9'/>
+<text x='872.0' y='105.75' class='value'>3</text>
+<text x='20' y='180.75' class='label'>投资/市场</text>
+<rect x='140' y='145.0' width='240.0' height='55.0' rx='10' fill='#1d4ed8' opacity='0.9'/>
+<text x='392.0' y='180.75' class='value'>1</text>
+<text x='20' y='255.75' class='label'>技术/技能</text>
+<rect x='140' y='220.0' width='720.0' height='55.0' rx='10' fill='#1d4ed8' opacity='0.9'/>
+<text x='872.0' y='255.75' class='value'>3</text>
+<text x='20' y='330.75' class='label'>F1</text>
+<rect x='140' y='295.0' width='240.0' height='55.0' rx='10' fill='#1d4ed8' opacity='0.9'/>
+<text x='392.0' y='330.75' class='value'>1</text>
+</svg>
