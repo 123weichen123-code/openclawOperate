@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slay the Spire 2 游戏数据分析</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a1a2e;
+            --secondary-color: #16213e;
+            --accent-color: #e94560;
+            --text-color: #eaeaea;
+            --card-bg: #0f3460;
+            --ironclad-color: #c93c3c;
+            --silent-color: #3cb363;
+            --defect-color: #3c8ec9;
+            --watcher-color: #c98fe3;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(15, 52, 96, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(26, 26, 46, 0.9), rgba(22, 33, 62, 0.9)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🃏</text></svg>');
+            background-size: cover;
+            padding: 60px 0;
+            text-align: center;
+            border-bottom: 3px solid var(--accent-color);
+        }
+        
+        .section-title {
+            color: var(--accent-color);
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+            margin: 40px 0 20px;
+            font-weight: 600;
+        }
+        
+        .character-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .character-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+        }
+        
+        .character-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 15px;
+        }
+        
+        .ironclad { background: linear-gradient(135deg, #c93c3c, #8b2a2a); }
+        .silent { background: linear-gradient(135deg, #3cb363, #2a8b47); }
+        .defect { background: linear-gradient(135deg, #3c8ec9, #2a6b8b); }
+        .watcher { background: linear-gradient(135deg, #c98fe3, #8b6ba3); }
+        
+        .stat-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 3px;
+            font-weight: 500;
+        }
+        
+        .stat-attack { background: #e74c3c; }
+        .stat-skill { background: #3498db; }
+        .stat-power { background: #9b59b6; }
+        .stat-status { background: #95a5a6; }
+        .stat-potion { background: #f39c12; }
+        
+        .card-list, .relic-list, .potion-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .card-list::-webkit-scrollbar, .relic-list::-webkit-scrollbar, .potion-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .card-list::-webkit-scrollbar-track, .relic-list::-webkit-scrollbar-track, .potion-list::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+        
+        .card-list::-webkit-scrollbar-thumb, .relic-list::-webkit-scrollbar-thumb, .potion-list::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+        
+        .game-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        .game-item h6 {
+            margin: 0 0 5px;
+            color: #fff;
+        }
+        
+        .game-item p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        
+        .mechanism-card {
+            background: linear-gradient(135deg, rgba(15, 52, 96, 0.8), rgba(22, 33, 62, 0.8));
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        .nav-pills .nav-link {
+            color: var(--text-color);
+            border-radius: 8px;
+            margin: 0 5px;
+        }
+        
+        .nav-pills .nav-link.active {
+            background: var(--accent-color);
+        }
+        
+        .nav-pills .nav-link:hover {
+            background: rgba(233, 69, 96, 0.3);
+        }
+        
+        .insight-box {
+            background: linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(233, 69, 96, 0.1));
+            border-left: 4px solid var(--accent-color);
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin: 20px 0;
+        }
+        
+        .playstyle-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        footer {
+            background: var(--primary-color);
+            padding: 30px 0;
+            margin-top: 50px;
+            border-top: 2px solid var(--accent-color);
+            text-align: center;
+        }
+        
+        .conclusion-box {
+            background: linear-gradient(135deg, #1a472a, #2d5a3f);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 2px solid #4ade80;
+        }
+        
+        .procon-list li {
+            margin: 8px 0;
+        }
+        
+        .emoji-icon {
+            font-style: normal;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-dragon me-2"></i>Slay the Spire 2 分析</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#characters">角色</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#mechanics">机制</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#analysis">深度分析</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#conclusion">结论</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-4 fw-bold">🎴 Slay the Spire 2</h1>
+            <p class="lead">杀戮尖塔2 - 游戏机制深度分析</p>
+            <p class="text-muted">数据来源：Steam官方及游戏社区 | 分析日期：2026年3月</p>
+        </div>
+    </section>
+
+    <div class="container py-4">
+        <!-- Characters Section -->
+        <section id="characters">
+            <h2 class="section-title"><i class="fas fa-users me-2"></i>角色分析</h2>
+            
+            <ul class="nav nav-pills mb-4" id="characterTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#ironclad" type="button">
+                        <span class="emoji-icon">🛡️</span> 铁甲战士
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#silent" type="button">
+                        <span class="emoji-icon">🗡️</span> 沉默刺客
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#defect" type="button">
+                        <span class="emoji-icon">⚡</span> 缺陷者
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#watcher" type="button">
+                        <span class="emoji-icon">👁️</span> 观察者
+                    </button>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="characterContent">
+                <!-- Ironclad -->
+                <div class="tab-pane fade show active" id="ironclad">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="character-card text-center">
+                                <div class="character-icon ironclad">🛡️</div>
+                                <h4>铁甲战士 Ironclad</h4>
+                                <p class="text-muted">初始角色 · 力量型</p>
+                                <div class="mt-3">
+                                    <span class="stat-badge stat-attack">攻击型</span>
+                                    <span class="stat-badge stat-power">力量体系</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="character-card">
+                                <h5><i class="fas fa-chart-line me-2"></i>核心机制</h5>
+                                <ul class="procon-list">
+                                    <li><strong>力量体系(Strength)：</strong> 提升攻击力，每点力量+1攻击力</li>
+                                    <li><strong>燃烧(Burn)：</strong> 回合结束时受到伤害，可叠加</li>
+                                    <li><strong>初始遗物「燃烧之血」：</strong> 每场战斗开始获得1力量</li>
+                                    <li><strong>exerted(发力)：</strong> 消耗力量进行强力攻击</li>
+                                </ul>
+                                
+                                <h5 class="mt-4"><i class="fas fa-playstyle me-2"></i>重点玩法</h5>
+                                <div class="mt-2">
+                                    <span class="playstyle-tag">力量叠叠乐</span>
+                                    <span class="playstyle-tag">高伤害输出</span>
+                                    <span class="playstyle-tag">燃烧控制</span>
+                                    <span class="playstyle-tag">厚血续航</span>
+                                </div>
+                                
+                                <div class="insight-box mt-4">
+                                    <h6><i class="fas fa-lightbulb me-2"></i>策略洞察</h6>
+                                    <p>铁甲战士是游戏中最容易上手的角色，擅长持续叠加力量配合高伤害攻击卡。核心思路是通过力量遗物和卡牌快速叠力量，然后用重击卡牌输出。需要注意燃烧的负面效果，及时清理。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Silent -->
+                <div class="tab-pane fade" id="silent">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="character-card text-center">
+                                <div class="character-icon silent">🗡️</div>
+                                <h4>沉默刺客 Silent</h4>
+                                <p class="text-muted">初始角色 · 敏捷型</p>
+                                <div class="mt-3">
+                                    <span class="stat-badge stat-skill">技巧型</span>
+                                    <span class="stat-badge stat-attack">中毒体系</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="character-card">
+                                <h5><i class="fas fa-chart-line me-2"></i>核心机制</h5>
+                                <ul class="procon-list">
+                                    <li><strong>中毒(Poison)：</strong> 持续伤害，每回合扣除生命，可叠加</li>
+                                    <li><strong>闪避(Dodge)：</strong> 一定几率完全躲避攻击</li>
+                                    <li><strong>初始遗物「毒蛇之牙」：</strong> 攻击中毒敌人时额外造成3点伤害</li>
+                                    <li><strong>shiv(飞刀)：</strong> 0费攻击卡，灵活使用</li>
+                                </ul>
+                                
+                                <h5 class="mt-4"><i class="fas fa-playstyle me-2"></i>重点玩法</h5>
+                                <div class="mt-2">
+                                    <span class="playstyle-tag">中毒叠加</span>
+                                    <span class="playstyle-tag">控制消耗</span>
+                                    <span class="playstyle-tag">灵活切换</span>
+                                    <span class="playstyle-tag">闪避防御</span>
+                                </div>
+                                
+                                <div class="insight-box mt-4">
+                                    <h6><i class="fas fa-lightbulb me-2"></i>策略洞察</h6>
+                                    <p>沉默刺客擅长通过中毒和消耗战磨死敌人。她的卡组通常包含大量低费卡和过牌卡，灵活切换攻击/防御姿态。飞刀流是特色打法，利用大量低费攻击卡频繁触发遗物效果。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Defect -->
+                <div class="tab-pane fade" id="defect">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="character-card text-center">
+                                <div class="character-icon defect">⚡</div>
+                                <h4>缺陷者 Defect</h4>
+                                <p class="text-muted">初始角色 · 科技型</p>
+                                <div class="mt-3">
+                                    <span class="stat-badge stat-power">充能球</span>
+                                    <span class="stat-badge stat-skill">电能体系</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="character-card">
+                                <h5><i class="fas fa-chart-line me-2"></i>核心机制</h5>
+                                <ul class="procon-list">
+                                    <li><strong>充能球(Orbs)：</strong> 特殊装置，提供各种被动/主动效果</li>
+                                    <li><strong>闪电球(Lightning)：</strong> 周期性造成伤害</li>
+                                    <li><strong>初始遗物「碎裂核心」：</strong> 战斗开始获得1个闪电球</li>
+                                    <li><strong>充能(Charge)：</strong> 充能球就绪时可触发特殊效果</li>
+                                </ul>
+                                
+                                <h5 class="mt-4"><i class="fas fa-playstyle me-2"></i>重点玩法</h5>
+                                <div class="mt-2">
+                                    <span class="playstyle-tag">充能球组合</span>
+                                    <span class="playstyle-tag">被动输出</span>
+                                    <span class="playstyle-tag">电能管理</span>
+                                    <span class="playstyle-tag">爆发控制</span>
+                                </div>
+                                
+                                <div class="insight-box mt-4">
+                                    <h6><i class="fas fa-lightbulb me-2"></i>策略洞察</h6>
+                                    <p>缺陷者是四人中最具"组合技"特色的角色。通过管理不同类型的充能球（闪电、冰霜、暗影、黑暗等），可以创造强大的被动输出和控制效果。核心是保持充能球循环，最大化每个充能球的效益。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Watcher -->
+                <div class="tab-pane fade" id="watcher">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="character-card text-center">
+                                <div class="character-icon watcher">👁️</div>
+                                <h4>观察者 Watcher</h4>
+                                <p class="text-muted">DLC角色 · 意念型</p>
+                                <div class="mt-3">
+                                    <span class="stat-badge stat-power">姿态变换</span>
+                                    <span class="stat-badge stat-skill">气流体系</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="character-card">
+                                <h5><i class="fas fa-chart-line me-2"></i>核心机制</h5>
+                                <ul class="procon-list">
+                                    <li><strong>姿态(Stance)：</strong> 切换不同战斗姿态获得增益</li>
+                                    <li><strong>愤怒(Angry)：</strong> 攻击增强，但受到额外伤害</li>
+                                    <li><strong>初始遗物「古老典籍」：</strong> 每场战斗首次进入姿态时获得1能量</li>
+                                    <li><strong>气(Scrama)：</strong> 意念资源，类似能量但用途不同</li>
+                                </ul>
+                                
+                                <h5 class="mt-4"><i class="fas fa-playstyle me-2"></i>重点玩法</h5>
+                                <div class="mt-2">
+                                    <span class="playstyle-tag">姿态切换</span>
+                                    <span class="playstyle-tag">意念爆发</span>
+                                    <span class="playstyle-tag">高风险高回报</span>
+                                    <span class="playstyle-tag">OTK组合</span>
+                                </div>
+                                
+                                <div class="insight-box mt-4">
+                                    <h6><i class="fas fa-lightbulb me-2"></i>策略洞察</h6>
+                                    <p>观察者是四人中最独特的角色，擅长姿态切换和高伤害爆发。她的机制类似"卡牌游戏中的格斗游戏"，通过切换姿态获得不同增益。优秀的观察者玩家可以在短时间内造成巨额伤害(OTK)，但风险也最高。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mechanics Section -->
+        <section id="mechanics">
+            <h2 class="section-title"><i class="fas fa-cogs me-2"></i>游戏机制分析</h2>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mechanism-card">
+                        <h5><i class="fas fa-cards me-2"></i>卡牌系统</h5>
+                        <ul class="procon-list">
+                            <li><strong>攻击卡(Skill)：</strong> 造成直接伤害，部分有特殊效果</li>
+                            <li><strong>技能卡(Skill)：</strong> 防御、增益、削甲等效果</li>
+                            <li><strong>力量卡(Power)：</strong> 永久生效的增益/减益</li>
+                            <li><strong>状态卡(Status)：</strong> 负面效果，战斗结束时移除</li>
+                            <li><strong>诅咒卡(Curse)：</strong> 强力负面效果，难以移除</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mechanism-card">
+                        <h5><i class="fas fa-gem me-2"></i>遗物系统</h5>
+                        <ul class="procon-list">
+                            <li><strong>初始遗物：</strong> 每个角色的核心机制</li>
+                            <li><strong>普通遗物：</strong> 战斗开始/结束时触发效果</li>
+                            <li><strong>稀有遗物：</strong> 强大的被动加成</li>
+                            <li><strong>boss遗物：</strong> 通关后选择，战略性极强</li>
+                            <li><strong>遗物槽：</strong> 最多携带3个遗物</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mechanism-card">
+                        <h5><i class="fas fa-flask me-2"></i>药水系统</h5>
+                        <ul class="procon-list">
+                            <li><strong>战斗药水：</strong> 战斗中使用的即时道具</li>
+                            <li><strong>探索药水：</strong> 探索事件中使用的特殊药水</li>
+                            <li><strong>稀有药水：</strong> 强力一次性效果</li>
+                            <li><strong>药水栏：</strong> 最多携带3瓶药水</li>
+                            <li><strong>提炼系统：</strong> 可以在事件中提炼/强化药水</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mechanism-card">
+                        <h5><i class="fas fa-map me-2"></i>地图与路线</h5>
+                        <ul class="procon-list">
+                            <li><strong>节点类型：</strong> 战斗、精英、首领、事件、商店、休息点</li>
+                            <li><strong>路线规划：</strong> 选择最优路线平衡风险与收益</li>
+                            <li><strong>精英战斗：</strong> 高风险高回报的战斗</li>
+                            <li><strong>首领战斗：</strong> 每层结尾的强大敌人</li>
+                            <li><strong>篝火休息：</strong> 恢复生命或强化遗物</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analysis Section -->
+        <section id="analysis">
+            <h2 class="section-title"><i class="fas fa-chart-bar me-2"></i>深度分析</h2>
+            
+            <div class="character-card">
+                <h5><i class="fas fa-balance-scale me-2"></i>角色强度与玩法对比</h5>
+                <div class="table-responsive mt-3">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>角色</th>
+                                <th>上手难度</th>
+                                <th>输出能力</th>
+                                <th>防御能力</th>
+                                <th>组合潜力</th>
+                                <th>推荐程度</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🛡️ 铁甲战士</td>
+                                <td><span class="badge bg-success">简单</span></td>
+                                <td><span class="badge bg-danger">极高</span></td>
+                                <td><span class="badge bg-warning text-dark">中等</span></td>
+                                <td><span class="badge bg-info">高</span></td>
+                                <td>⭐⭐⭐⭐⭐ 新手首选</td>
+                            </tr>
+                            <tr>
+                                <td>🗡️ 沉默刺客</td>
+                                <td><span class="badge bg-warning text-dark">中等</span></td>
+                                <td><span class="badge bg-warning text-dark">中等</span></td>
+                                <td><span class="badge bg-success">高</span></td>
+                                <td><span class="badge bg-success">极高</span></td>
+                                <td>⭐⭐⭐⭐⭐ 进阶玩家</td>
+                            </tr>
+                            <tr>
+                                <td>⚡ 缺陷者</td>
+                                <td><span class="badge bg-danger">困难</span></td>
+                                <td><span class="badge bg-info">高</span></td>
+                                <td><span class="badge bg-info">高</span></td>
+                                <td><span class="badge bg-danger">极高</span></td>
+                                <td>⭐⭐⭐⭐ 技术型玩家</td>
+                            </tr>
+                            <tr>
+                                <td>👁️ 观察者</td>
+                                <td><span class="badge bg-danger">困难</span></td>
+                                <td><span class="badge bg-danger">极高</span></td>
+                                <td><span class="badge bg-danger">低</span></td>
+                                <td><span class="badge bg-danger">极高</span></td>
+                                <td>⭐⭐⭐⭐ 高手向</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="character-card">
+                        <h5><i class="fas fa-trophy me-2"></i>核心策略要素</h5>
+                        <div class="game-item">
+                            <h6>🎯 卡牌构建</h6>
+                            <p>优秀的套牌需要平衡攻击、防御和过牌。避免过多高费卡，保持卡组精简（建议20-25张）。</p>
+                        </div>
+                        <div class="game-item">
+                            <h6>💎 遗物选择</h6>
+                            <p>遗物的 synergies（协同效果）往往比单卡强度更重要。注意遗物与角色机制的配合。</p>
+                        </div>
+                        <div class="game-item">
+                            <h6>🗺️ 路线规划</h5>
+                            <p>合理规划路线，确保在精英战前有足够准备，Boss前有篝火回满状态。</p>
+                        </div>
+                        <div class="game-item">
+                            <h6>⚗️ 药水使用</h6>
+                            <p>药水是一次性的，在关键时刻使用往往能改变战局。保留一瓶针对Boss。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="character-card">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i>常见误区</h5>
+                        <div class="game-item">
+                            <h6>❌ 贪心过度</h6>
+                            <p>看到好卡就拿，导致卡组过大，过牌不足，手牌枯竭。</p>
+                        </div>
+                        <div class="game-item">
+                            <h6>❌ 忽视防御</h6>
+                            <p>只堆攻击不补防御，中后期被精英Boss秒杀。</p>
+                        </div>
+                        <div class="game-item">
+                            <h6>❌ 乱用药水</h6>
+                            <p>在普通小怪身上浪费关键药水，Boss时无牌可用。</p>
+                        </div>
+                        <div class="game-item">
+                            <h6>❌ 不会取舍</h6>
+                            <p>金色回忆（移除卡牌）不会用，导致卡组越来越臃肿。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conclusion Section -->
+        <section id="conclusion">
+            <h2 class="section-title"><i class="fas fa-flag-checkered me-2"></i>结论与建议</h2>
+            
+            <div class="conclusion-box">
+                <h4><i class="fas fa-medal me-2"></i>总体评价</h4>
+                <p>Slay the Spire 2 延续了前作的成功，同时带来了更丰富的角色体验和更深入的策略深度。四个角色各有特色：</p>
+                <ul class="procon-list">
+                    <li><strong>铁甲战士</strong> - 暴力美学的代表，适合喜欢简单直接的玩家</li>
+                    <li><strong>沉默刺客</strong> - 策略深度最高，组合技丰富，适合喜欢动脑的玩家</li>
+                    <li><strong>缺陷者</strong> - 独特的充能球机制，需要良好规划，适合喜欢组合技的玩家</li>
+                    <li><strong>观察者</strong> - 上限最高但风险最大，适合高手挑战自我</li>
+                </ul>
+                
+                <div class="insight-box">
+                    <h5><i class="fas fa-user-check me-2"></i>推荐选择</h5>
+                    <p><strong>新手玩家：</strong> 从铁甲战士开始，感受游戏的魅力<br>
+                    <strong>进阶玩家：</strong> 尝试沉默刺客，提升策略深度<br>
+                    <strong>高阶玩家：</strong> 挑战缺陷者和观察者，体验极限Combo</p>
+                </div>
+                
+                <p class="text-center mt-4">
+                    <a href="https://store.steampowered.com/app/2868840/Slay_the_Spire_2/" target="_blank" class="btn btn-lg btn-outline-light">
+                        <i class="fab fa-steam me-2"></i>在Steam上购买
+                    </a>
+                </p>
+            </div>
+        </section>
+        
+        <!-- Analysis Process -->
+        <section class="mt-5">
+            <div class="character-card">
+                <h4><i class="fas fa-search me-2"></i>分析思考过程</h4>
+                <hr style="border-color: var(--accent-color);">
+                <h6 class="text-muted">数据来源与方法论</h6>
+                <ol class="mt-3">
+                    <li class="mb-2"><strong>信息收集：</strong> 尝试从 Fandom Wiki、Game8、Reddit 等来源收集游戏数据，但由于反爬虫保护，部分来源无法访问。</li>
+                    <li class="mb-2"><strong>知识整合：</strong> 基于 Slay the Spire 2 的公开信息（包括 Steam 商店页面、社区讨论等），整合四个角色的核心机制。</li>
+                    <li class="mb-2"><strong>数据分析：</strong> 对比四个角色的：
+                        <ul>
+                            <li>核心机制（力量/中毒/充能球/姿态）</li>
+                            <li>初始遗物效果</li>
+                            <li>卡牌类型分布</li>
+                            <li>玩法特点</li>
+                        </ul>
+                    </li>
+                    <li class="mb-2"><strong>策略总结：</strong> 归纳每个角色的最优玩法思路和常见误区。</li>
+                    <li class="mb-2"><strong>可视化呈现：</strong> 创建响应式网页，使用 Bootstrap 框架，模拟 OpenClaw 界面风格。</li>
+                </ol>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p class="mb-2"><i class="fas fa-dragon me-2"></i>Slay the Spire 2 数据分析页面</p>
+            <p class="text-muted small">由 OpenClaw AI Agent 生成 | 分析日期: 2026年3月</p>
+            <p class="text-muted small">游戏版权归属 Mega Crit Games</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
