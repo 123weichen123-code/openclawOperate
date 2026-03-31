@@ -1,0 +1,10 @@
+# OpenClaw runtime
+.openclaw/
+
+# ClawHub cache
+.clawhub/
+.clawdhub/
+
+# Skills with their own git repos (nested git)
+skills/dexter/
+skills/superpowers/
