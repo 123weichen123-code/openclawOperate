@@ -1,0 +1,28 @@
+{
+  "lastRun": "2026-04-13T04:30:00Z",
+  "lastRuns": {
+    "2026-04-13": {
+      "topProjects": [
+        "NousResearch/hermes-agent",
+        "shiyu-coder/Kronos",
+        "multica-ai/multica",
+        "OpenBMB/VoxCPM",
+        "thedotmack/claude-mem",
+        "coleam00/Archon",
+        "snarktank/ralph",
+        "rustfs/rustfs"
+      ],
+      "recommendedForIntegration": [
+        "multica-ai/multica",
+        "thedotmack/claude-mem",
+        "OpenBMB/VoxCPM"
+      ],
+      "pendingConfirmation": true
+    }
+  },
+  "weeklyTrends": {
+    "hermes-agent": "+38,426 stars",
+    "markitdown": "+10,592 stars",
+    "multica": "+6,846 stars"
+  }
+}
